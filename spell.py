@@ -1,41 +1,36 @@
 import nltk
-from nltk.corpus import genesis,names
-#nltk.download('genesis')
-wt = names.words()
+from nltk.corpus import genesis,names,brown,webtext
+import operator
+from random import shuffle,sample
+from decimal import Decimal
+#nltk.download('webtext')
+wt = brown.words()
 data = nltk.FreqDist(sorted(wt))
 corpus=[m.lower() for m, n in data.items()]
-word=input("\nenter the mis-spelt word to convert into bigrams: ").lower()
-lis=[]
-while len(word)>1:
-    lis.append(word[:2])
-    word=word[1:]
-print('\n',lis)
-wordsassoc={}
-for bigram in lis:
-    if bigram not in wordsassoc:
-        wordsassoc[bigram.upper()]=()
+#corpus=sample(corpus,len(corpus))
+wor=[wor.lower() for wor in input("\nenter some mis-spelt words: ").split(',')]
+ogword=[ogword.lower() for ogword in input("\nwhat do you think the og words are: ").split(',')]
+n=[int(n)for n in input("\nenter what kind of gramming scheme (integer) : ").split(',')]
+mrr=0
+for i in range(len(n)):
+    lis=[]
+    while len(wor[i])>n[i]-1:
+        lis.append(wor[i][:n[i]])
+        wor[i]=wor[i][1:]
+    print("\nthe given word's {}-grams are: ".format(n[i]),lis)
+    wordsfreq={}
     for word in corpus:
-        if bigram in word:
-            wordsassoc[bigram.upper()]=wordsassoc[bigram.upper()]+(word,)
-print('\nwords associated with respective bigrams:\n\n',wordsassoc,'\n')
-freq={}
-for words in wordsassoc.values():
-    for wor in words:
-        if wor not in freq:
-            freq[wor]=0
-for word in freq:
-    for words in wordsassoc.values():
-        if word in words:
-            freq[word]=freq[word]+1
-print('frequency of all the unique words: \n\n',freq,'\n') 
-high=0
-for fre in freq.values():
-    if fre>high:
-        high=fre
-wordscon=[]
-for word in freq:
-    if freq[word]==high:
-        wordscon.append(word)
-print('words to consider:\n\n',wordscon)
-print('\ntotal words to consider: ',len(wordscon))
-
+        if word not in wordsfreq:
+            wordsfreq[word]=0
+        for bigram in lis:
+            if bigram in word:
+                wordsfreq[word]=wordsfreq[word]+1
+    wordscon=sorted(wordsfreq.items(), key=operator.itemgetter(1), reverse=True)
+    print("\nlet's consider top 20 words:\n\n",wordscon[:20])
+    for w in range(len(wordscon[:20])):
+        if wordscon[:20][w][0]==ogword[i]:
+            mrr+=Decimal(1/(w+1))
+    if i==len(n)-1:
+        mrr/=(i+1)
+        mrr= round(mrr,2)
+print('\nmrr is: ',mrr)
